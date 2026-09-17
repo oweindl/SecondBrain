@@ -23,6 +23,7 @@ By default, brains live under a local `SecondBrain` folder:
 - `/second-brain` — list available brains and ask which one to activate.
 - `/second-brain <BrainNameOrFolder>` — activate a brain by display name or folder name.
 - `/second-brain create <BrainName>` — create a new brain and switch into it.
+- `/second-brain check updates` — manually check GitHub for a newer skill version.
 - `/second-brain list` — list known brains.
 - `/second-brain show <BrainName>` — show or summarize brain files.
 - `/second-brain update context <BrainName> ...` — append or merge context.
@@ -41,4 +42,6 @@ Then enable or reload custom skills in Microsoft Scout.
 
 ## Version
 
-Initial version: generic Markdown SecondBrain creation and context switching.
+Current version: `0.2.0`
+
+Version `0.2.0` adds semantic version metadata and GitHub update-check behavior. The skill checks `https://raw.githubusercontent.com/oweindl/SecondBrain/main/SKILL.md` for a newer version on use, unless automatic update prompts are disabled. Users can still run `/second-brain check updates` manually.

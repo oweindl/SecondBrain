@@ -1,6 +1,8 @@
 ---
 name: "second-brain"
 description: "Create, maintain, list, show, and switch between named folder-based Markdown SecondBrain knowledge spaces."
+version: "0.2.0"
+repository: "https://github.com/oweindl/SecondBrain"
 ---
 
 # /second-brain
@@ -10,6 +12,8 @@ Create, maintain, list, show, and switch between named **SecondBrain** knowledge
 ## Core principles
 
 - Keep the skill generic. Do not include built-in brain-specific actions, scans, workflows, reports, output subfolders, or tool integrations.
+- Maintain a semantic version in this `SKILL.md` frontmatter.
+- Check for newer skill versions on GitHub at the start of each invocation unless automatic update prompts were disabled by the user.
 - Use Markdown files only; do not use a database for brain storage.
 - Preserve manual edits. Never overwrite existing `context.md`, `startup.md`, or root `index.md` destructively.
 - When updating an existing file, merge or append changes in a clearly labeled section unless the user explicitly asks to replace a section.
@@ -35,6 +39,51 @@ Interpretation of "root folder":
 - If the user supplies a path ending in `SecondBrain`, treat that path as the SecondBrain root.
 - If the user supplies any other folder path, create/use a child folder named `SecondBrain` under it.
 - Use Windows-style paths when interacting with local files.
+
+## Version and update checks
+
+Current skill version: `0.2.0`.
+
+GitHub source:
+
+- Repository: `https://github.com/oweindl/SecondBrain`
+- Raw skill file: `https://raw.githubusercontent.com/oweindl/SecondBrain/main/SKILL.md`
+
+Automatic update behavior:
+
+1. At the start of every `/second-brain` invocation, before running the requested brain command, check whether automatic update prompts are disabled.
+2. Store update-check preferences in the resolved SecondBrain root as `.secondbrain-settings.md` when a root is available.
+3. If no SecondBrain root is available yet, perform the check without persisting preferences until a root is selected or created.
+4. Unless prompts are disabled, fetch the raw GitHub `SKILL.md` and compare its frontmatter `version` with the local installed `SKILL.md` frontmatter version.
+5. Use semantic version comparison for `MAJOR.MINOR.PATCH`; ignore remote versions that are missing, malformed, equal, or older.
+6. If a newer version exists, inform the user and ask with exactly these choices:
+   - `Update skill`
+   - `Skip`
+   - `Do not ask me again`
+7. `Update skill` updates the local installed `/second-brain` skill from the fetched remote `SKILL.md` only after verifying that the frontmatter `name` is `second-brain` and the remote version is newer.
+8. `Skip` continues the current command without updating and does not disable future prompts.
+9. `Do not ask me again` records that automatic update prompts are disabled, then continues the current command without updating.
+10. If the update check cannot complete because GitHub is unreachable, tools are unavailable, or the remote file cannot be validated, continue the requested command and mention the update-check issue only when it is useful and not noisy.
+
+Manual update check:
+
+- Support `/second-brain check updates`, `/second-brain update check`, and natural requests to check for SecondBrain updates.
+- Manual checks ignore the `Do not ask me again` setting.
+- If a newer version exists, offer the same choices as above.
+- If no newer version exists, report the local version and that it is current.
+
+Settings file template:
+
+```markdown
+# SecondBrain Settings
+
+## Update checks
+
+- Automatic update prompts disabled: false
+- Last skipped version:
+```
+
+When changing this settings file, preserve manual notes and unknown sections.
 
 ## Folder naming
 
