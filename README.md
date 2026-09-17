@@ -6,6 +6,12 @@ It creates, maintains, lists, shows, and switches between named folder-based kno
 
 This repository contains the core instruction package/specification. It can be adapted for different agent runtimes as a slash command, prompt skill, plugin, MCP workflow, CLI command, or custom tool.
 
+## Companion browser
+
+[MD-Browser](https://github.com/oweindl/MD-Browser) is a companion desktop tool for browsing, searching, previewing, and lightly editing SecondBrain-compatible Markdown folder structures.
+
+Use MD-Browser when you want a local visual view over a brain folder, including folder navigation, rendered Markdown preview, local link navigation, search, and task checkbox editing. SecondBrain remains the storage and workflow convention; MD-Browser is an optional viewer/editor for the resulting Markdown files.
+
 ## Storage contract
 
 By default, brains live under a `SecondBrain` root folder:
@@ -21,6 +27,20 @@ By default, brains live under a `SecondBrain` root folder:
 - `index.md` is the root registry of known brains.
 
 Use the path separator and path style appropriate for the operating system and agent runtime.
+
+## Optional metadata convention
+
+Brains may include YAML frontmatter in `context.md` so tools can recognize the structure and suggest compatible viewers:
+
+```yaml
+---
+brainName: Example Brain
+schema: secondbrain-v1
+browser: md-browser
+---
+```
+
+This metadata is optional. Implementations should not require it to read an existing brain, and manual Markdown content remains authoritative.
 
 ## Core behavior
 
