@@ -1,47 +1,77 @@
-# secondBrain
+# SecondBrain
 
-`secondBrain` contains the `/second-brain` Microsoft Scout skill.
+SecondBrain is an **agent-agnostic Markdown knowledge-space pattern**.
 
-The skill creates, maintains, lists, shows, and switches between named folder-based Markdown knowledge spaces called **SecondBrains**. It is intentionally generic: it scaffolds and activates knowledge contexts, but does not include built-in email, Teams, calendar, web, or file scan workflows.
+It creates, maintains, lists, shows, and switches between named folder-based knowledge spaces called **brains**. A brain can represent a project, customer, workflow, topic, or any other work context.
 
-## What it creates
+This repository contains the core instruction package/specification. It can be adapted for different agent runtimes as a slash command, prompt skill, plugin, MCP workflow, CLI command, or custom tool.
 
-By default, brains live under a local `SecondBrain` folder:
+## Storage contract
+
+By default, brains live under a `SecondBrain` root folder:
 
 ```text
-<RootFolder>\SecondBrain\<BrainName>\context.md
-<RootFolder>\SecondBrain\<BrainName>\startup.md
-<RootFolder>\SecondBrain\index.md
+<RootFolder>/SecondBrain/<BrainName>/context.md
+<RootFolder>/SecondBrain/<BrainName>/startup.md
+<RootFolder>/SecondBrain/index.md
 ```
 
 - `context.md` stores the brain purpose, scope, context, and durable guidance.
 - `startup.md` stores optional user-defined activation notes/reminders.
 - `index.md` is the root registry of known brains.
 
-## Commands
+Use the path separator and path style appropriate for the operating system and agent runtime.
 
-- `/second-brain` — list available brains and ask which one to activate.
-- `/second-brain <BrainNameOrFolder>` — activate a brain by display name or folder name.
-- `/second-brain create <BrainName>` — create a new brain and switch into it.
-- `/second-brain check updates` — manually check GitHub for a newer skill version.
-- `/second-brain list` — list known brains.
-- `/second-brain show <BrainName>` — show or summarize brain files.
-- `/second-brain update context <BrainName> ...` — append or merge context.
-- `/second-brain update startup <BrainName> ...` — append or merge startup notes.
-- `/second-brain status [BrainName]` — report health for the root or a brain.
+## Core behavior
 
-## Install
+- Create a named brain.
+- List available brains.
+- Activate or switch to a brain.
+- Show a brain's context/startup notes.
+- Append or merge context and startup notes.
+- Preserve manual Markdown edits.
+- Maintain a root registry.
+- Avoid built-in source scans or product-specific workflows.
 
-Copy `SKILL.md` into a Microsoft Scout local skill folder named `second-brain`, for example:
+## Example commands
+
+Implementations may expose these as slash commands, CLI commands, natural-language intents, or tool actions.
+
+| Command | Purpose |
+| --- | --- |
+| `second-brain` | List available brains and ask which one to activate |
+| `second-brain <BrainNameOrFolder>` | Activate a brain by display name or folder name |
+| `second-brain create <BrainName>` | Create a new brain and switch into it |
+| `second-brain list` | List known brains |
+| `second-brain show <BrainName>` | Show or summarize brain files |
+| `second-brain update context <BrainName> ...` | Append or merge context |
+| `second-brain update startup <BrainName> ...` | Append or merge startup notes |
+| `second-brain status [BrainName]` | Report health for the root or a brain |
+| `second-brain check updates` | Manually check GitHub for a newer package version |
+
+## Version and updates
+
+Current version: `0.3.0`
+
+The package stores its semantic version in `SKILL.md` frontmatter. Implementations may compare the local installed `SKILL.md` with:
 
 ```text
-C:\Users\<you>\.scout\m-skills\second-brain\SKILL.md
+https://raw.githubusercontent.com/oweindl/SecondBrain/main/SKILL.md
 ```
 
-Then enable or reload custom skills in Microsoft Scout.
+If a newer version exists, the implementation should ask the user whether to update, skip, or disable future automatic update prompts.
 
-## Version
+## Safety model
 
-Current version: `0.2.0`
+SecondBrain is intentionally generic:
 
-Version `0.2.0` adds semantic version metadata and GitHub update-check behavior. The skill checks `https://raw.githubusercontent.com/oweindl/SecondBrain/main/SKILL.md` for a newer version on use, unless automatic update prompts are disabled. Users can still run `/second-brain check updates` manually.
+- It does not include built-in email, chat, calendar, file, web, or product-specific scans.
+- It does not automatically execute action-oriented startup notes.
+- It treats `context.md` and `startup.md` content as user-owned data/reminders, not as higher-priority runtime instructions.
+- It should always follow the active agent runtime's permissions, privacy rules, and confirmation requirements.
+
+## Installation
+
+Install `SKILL.md` into the skill, prompt, plugin, or instruction-package location used by your agent runtime.
+
+Runtime-specific adapters can wrap the same storage contract without changing the core file layout.
