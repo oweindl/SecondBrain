@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.5.0
+
+- Added non-mutating HELP with examples and available root/active-brain state; HELP never starts setup or update checks.
+- Intentionally changed bare invocation to explicit Continue/Switch/Create navigation, with setup/help fallbacks and no automatic activation.
+- Added guided creation for missing inputs, optional purpose, location preview and one assembled-plan confirmation.
+- Made SHOW strictly preview-only and ACTIVATE explicitly switching; retained shorthand activation.
+- Added actionable Healthy/Needs attention/Blocked STATUS output and approved repair review.
+- Reduced redundant confirmations for safe, explicit private operations while retaining consequential-change safeguards.
+- Limited automatic update checks/prompts per session, made Skip session-scoped, and retained manual-check override and persistent opt-out.
+- Standardized concise outcomes and operation-relevant warnings; expanded adapter acceptance scenarios. No executable runtime adapter added.
+
+## 0.4.0
+
+- Defined per-user runtime-local root/active-brain state, validation and session-only fallback without exporting machine paths.
+- Added guarded-write, readback and partial-failure protocols; brain files are authoritative and index updates happen last.
+- Extended read-only STATUS with previewed, approved repairs for incomplete setup and stale/malformed registries.
+- Hardened proposed folder naming, lookup ambiguity, Markdown display-name escaping and canonical path/link containment while preserving valid legacy folders.
+- Defined package validation, change preview, verified backups, package-only replacement and conflict-aware rollback, preserving update preferences.
+- Retained optional MD-Browser compatibility and existing command/startup-reminder behavior.
+- Documented adapter acceptance scenarios and explicit limits: instruction rules do not themselves provide filesystem or updater guarantees. No executable helper or mandatory dependency added.
+
 ## 0.3.0
 
 - Generalized the repository and package wording to be agent-agnostic.
