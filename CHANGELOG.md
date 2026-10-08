@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1
+
+- Replaced the once-per-session GitHub fetch limit with a persisted source-keyed minimum 60-minute interval across sessions and brain/root switches.
+- Defined UTC eligibility, pre-fetch concurrent reservation, failure/crash throttling, clock-skew handling and explicit persistence limitations.
+- Defined dated cached results/candidate bytes, next-eligible-time reporting and approval-based installation without redundant discovery fetches.
+- Manual checks bypass prompt opt-out/suppression but not the network interval; HELP and bare navigation remain non-checking.
+- Preserved one automatic prompt per session and all existing update/rollback safeguards. Checks occur on invocation, not via background polling.
+
 ## 0.5.0
 
 - Added non-mutating HELP with examples and available root/active-brain state; HELP never starts setup or update checks.

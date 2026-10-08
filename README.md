@@ -73,7 +73,7 @@ Implementations may expose these as slash commands, CLI commands, natural-langua
 
 ## Version and updates
 
-Current version: `0.5.0`
+Current version: `0.5.1`
 
 The package stores its semantic version in `SKILL.md` frontmatter. Implementations may compare the local installed `SKILL.md` with:
 
@@ -83,7 +83,11 @@ https://raw.githubusercontent.com/oweindl/SecondBrain/main/SKILL.md
 
 If a newer version exists, the implementation should ask the user whether to update, skip, or disable future automatic update prompts.
 
-HELP and bare navigation never trigger update checks. Other operations automatically fetch at most once per repository source per session and offer at most one automatic update prompt per session. Skip suppresses prompts for the current session only; manual CHECK UPDATES bypasses session suppression and the existing persistent opt-out without re-enabling automatic prompts.
+HELP and bare navigation never trigger update checks. Other eligible operations check GitHub on use only when **at least 60 minutes** have elapsed since the previous attempt for the same source. This replaces the once-per-session fetch limit, allowing another due check during a long session without background polling.
+
+Persist `lastAttemptAtUtc` and dated outcomes in runtime-local per-user configuration outside the package and brain root; session restarts, brain switches and package upgrades do not reset the interval. Reserve an attempt before fetching so failed checks/crashes also consume the interval and concurrent sessions cannot both fetch. Missing persistence or reliable reservation support blocks network checks rather than silently abandoning the interval.
+
+Offer at most one automatic update prompt per session. Skip suppresses prompts for that session only. Manual CHECK UPDATES bypasses prompt suppression and the persistent opt-out, **not the network cooldown**: during the interval it shows the dated cached result and next eligible time. Installation still requires approval and revalidation of cached package bytes. No timer, scheduled job or automatic installation is created.
 
 Before approval, show meaningful changes and any local customizations that replacement would remove. Validate package structure, preserve a verified prior package, replace only package-owned files, and verify both installed and runtime-loaded instructions where available. On failure, attempt conflict-aware rollback and report its outcome explicitly. Name/version validation alone does not prove authenticity.
 
@@ -148,7 +152,16 @@ These are expected behaviors, not a claim that an adapter or filesystem has been
 | Fully specified safe private command | Proceed without redundant confirmation; consequential-change and write-safety rules remain enforced. |
 | STATUS healthy, incomplete or inaccessible | Use Healthy/Needs attention/Blocked appropriately; offer repair review only when meaningful, never automatic writes. |
 | Repeated automatic update opportunity after Skip | No second prompt that session and no persistent opt-out change; next session can prompt again. |
-| Explicit CHECK UPDATES after Skip/opt-out | Perform requested check, validate candidate, require update approval; do not re-enable automatic prompts. |
+| Explicit CHECK UPDATES after Skip/opt-out | Use dated cache during cooldown, otherwise fetch when due; validate candidate, require approval and do not re-enable automatic prompts. |
+| First check with no source record | Safely initialize/reserve runtime-local check state before fetching; no root/brain data changed. |
+| Another invocation at 59 minutes, including after restart | No network fetch; manual check shows dated cache/remaining wait, not a fresh result. |
+| Invocation at exactly 60 minutes or later in a long session | One reserved fetch is eligible; no invocation means no background check. |
+| Failed/invalid request or crash after reservation | Attempt consumes the hour; retain last successful result separately and do not retry immediately. |
+| Concurrent sessions checking the same source | Conditional reservation/lock allows only one fetch in the interval. |
+| Brain/root switch or package upgrade/rollback | Preserve the source-keyed attempt timestamp; no cooldown reset. |
+| Missing reservation support, read-only or malformed check state | Report inability to enforce the cooldown; no unthrottled fetch or silent reset. |
+| Future timestamp/clock rollback | Report clock/state issue, do not fetch until due or explicitly repaired. |
+| Approved cached candidate during cooldown | Revalidate its bytes/digest locally; no redundant discovery fetch and no installation without approval. |
 
 ## Runtime limitations
 
