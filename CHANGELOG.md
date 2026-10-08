@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+- Added optional Python 3.10+ standard-library adapter with truthful capability reporting and explicit opt-in.
+- Implemented persistent, OS-lock-reserved 60-minute update checks with injectable time/transport, bounded HTTPS retrieval and verified caches.
+- Added guarded revision-aware writes, safe absent-file creation, protection handling and verified Windows nonredirecting CLOUD-placeholder support.
+- Added reviewed manifest ownership/digests, staged package backups, operation journals and explicit recovery previews.
+- Implemented supported Scout host-tool request/readback bridging; file-only installation, registration mismatch and pending rollback never report completion.
+- Added disposable executable unittest fixtures for timing, concurrency, containment, interrupted writes/installs and registration/rollback outcomes.
+- Kept instruction-only mode, manual approval requirements and explicit noncooperating/cloud/protection/authenticity limits. No automatic installation, registry manipulation, database or background service.
+
 ## 0.5.1
 
 - Replaced the once-per-session GitHub fetch limit with a persisted source-keyed minimum 60-minute interval across sessions and brain/root switches.

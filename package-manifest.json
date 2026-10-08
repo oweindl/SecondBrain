@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "second-brain",
+  "version": "0.6.0",
+  "files": {
+    "SKILL.md": "5777f260d5471402ae42da3a323af389e4d20e2a31930f0574e69a16eeac0af1",
+    "scripts/secondbrain.py": "a195274486a620f983e79742c33b7c1a41fafe18056e3e898aa09b471e138613",
+    "adapters/README.md": "c5ad5f638d2da8ff447e794ecf8bc33f52965910e206f0b661800b89dbdbc475"
+  }
+}

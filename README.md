@@ -4,7 +4,7 @@ SecondBrain is an **agent-agnostic Markdown knowledge-space pattern**.
 
 It creates, maintains, lists, shows, and switches between named folder-based knowledge spaces called **brains**. A brain can represent a project, customer, workflow, topic, or any other work context.
 
-This repository contains the core instruction package/specification. It can be adapted for different agent runtimes as a slash command, prompt skill, plugin, MCP workflow, CLI command, or custom tool.
+This repository contains the core instruction package/specification and an optional Python reliability adapter. It can be adapted for different agent runtimes as a slash command, prompt skill, plugin, MCP workflow, CLI command, or custom tool.
 
 ## Companion browser
 
@@ -73,7 +73,7 @@ Implementations may expose these as slash commands, CLI commands, natural-langua
 
 ## Version and updates
 
-Current version: `0.5.1`
+Current version: `0.6.0`
 
 The package stores its semantic version in `SKILL.md` frontmatter. Implementations may compare the local installed `SKILL.md` with:
 
@@ -91,7 +91,34 @@ Offer at most one automatic update prompt per session. Skip suppresses prompts f
 
 Before approval, show meaningful changes and any local customizations that replacement would remove. Validate package structure, preserve a verified prior package, replace only package-owned files, and verify both installed and runtime-loaded instructions where available. On failure, attempt conflict-aware rollback and report its outcome explicitly. Name/version validation alone does not prove authenticity.
 
-The portable package owns `SKILL.md` only. Preserve `.secondbrain-settings.md` update preferences, brain data, runtime-local state and custom adapters. See the package update protocol in `SKILL.md`.
+The portable package owns the files listed in `package-manifest.json`, plus the manifest itself: `SKILL.md`, `scripts/secondbrain.py` and `adapters/README.md`. Per-file SHA256 values and version consistency detect corruption, not publisher authenticity. Preserve `.secondbrain-settings.md` preferences, brain data, runtime-local state and custom adapters. Tests and root repository documentation are not installed.
+
+## Optional reliability adapter
+
+Requires Python 3.10+ and its standard library only. Nothing runs on import; no scheduler, dependency installation or direct Scout registry edit is included. Explicitly opt into helper-backed operation and choose a private local runtime directory outside your package/install/brain directories. Instruction-only use remains available with clearly weaker guarantees.
+
+Use the script path from your reviewed package. These examples use Windows paths; replace placeholders rather than run them literally:
+
+```powershell
+python .\scripts\secondbrain.py capabilities
+python .\scripts\secondbrain.py validate-package --package-dir .
+python .\scripts\secondbrain.py check-updates --runtime-dir "<private-runtime-dir>" --brain-root "<brain-root>" --now "<authoritative-ISO8601-with-offset>" --installed-version 0.6.0
+python .\scripts\secondbrain.py guarded-write --runtime-dir "<private-runtime-dir>" --root "<brain-root>" --target "context.md" --expected-sha256 "<original-SHA256-or-absent>" --content-file "<private-merged-content-file>" --approved
+```
+
+Updates reserve timestamps under an OS lock, survive restarts, retain failed/pending attempts, enforce the 60-minute boundary and verify cached candidate digests. Guarded writes reject detected concurrent changes, escaping links and unsafe names; they require existing parent directories and preserve supported protection metadata. Known nonredirecting Windows CLOUD placeholders are verified rather than treated as junctions.
+
+All operational commands emit JSON. A nonzero exit with `awaiting_registration` is intentionally incomplete, not successful. Package installation requires a reviewed full manifest package; checking SKILL version metadata does not download executable helper updates.
+
+See [the supported host bridge](adapters/README.md) for preparation, registration, verification and approved journal recovery. The host still manages root/active-brain selection and prompt preferences; the helper is not a replacement for those workflows.
+
+## Automated disposable-fixture tests
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The suite executes cooldown, cache, locking, containment, guarded-write, package and host-registration/recovery logic using temporary fixtures and fake network responses. It does not use personal brains, M365 or live GitHub traffic. Some OS permission-dependent symlink tests may skip; platform guarantees must still be assessed on the actual target runtime.
 
 ## Persistence and recovery
 
@@ -121,7 +148,7 @@ Reject traversal and rooted child paths. Validate resolved root/child boundaries
 
 ## Acceptance scenarios for runtime adapters
 
-These are expected behaviors, not a claim that an adapter or filesystem has been tested. Run them with disposable, non-personal fixtures when implementing an adapter.
+These are host/adapter acceptance scenarios. The executable suite covers helper logic with disposable fixtures; it does not prove all host UI/provider behaviors or eliminate the listed platform limits.
 
 | Scenario | Expected result |
 | --- | --- |
@@ -162,12 +189,19 @@ These are expected behaviors, not a claim that an adapter or filesystem has been
 | Missing reservation support, read-only or malformed check state | Report inability to enforce the cooldown; no unthrottled fetch or silent reset. |
 | Future timestamp/clock rollback | Report clock/state issue, do not fetch until due or explicitly repaired. |
 | Approved cached candidate during cooldown | Revalidate its bytes/digest locally; no redundant discovery fetch and no installation without approval. |
+| Helper absent or not approved | Continue in disclosed instruction-only/limited mode; no automatic script download or execution. |
+| Manifest mismatch, unsafe ownership or newer package extras | Block invalid owned files; copy only reviewed ownership and preserve local-only content. |
+| File installation without actual host readback | Remain awaiting_registration, never completed from disk bytes alone. |
+| Host regenerates matching SKILL wrapper | Restore canonical metadata only with approval and matching instruction body; stale restored text blocks completion. |
+| Recovery preview followed by external edits | Preview is non-mutating; approved rollback refuses to overwrite changed operation-owned files. |
 
 ## Runtime limitations
 
-This repository ships instructions, not executable storage/update helpers or a test runner. Persistence, conditional writes, atomic replacement, link resolution, locking, protection-preserving staging and registration rollback require adapter/provider support. Hash checks can detect edits but do not remove the check-to-write race; cooperating locks do not protect against all external editors, and cloud sync does not guarantee atomicity across devices.
+The optional helper enforces local cooperating locks, durable update-check state, guarded revisions, staged replacement, manifest validation and journaled installation/recovery. It does not implement remote provider conditional writes, arbitrary protection labels, active-brain persistence or registration APIs by itself. Host registration requires supported tools and actual exported readback.
 
-No helper, database or background service is required. A runtime must disclose unsupported guarantees rather than silently approximate them.
+Hash checks do not eliminate the final check-to-replace race with noncooperating editors. Cloud sync does not guarantee atomicity across devices, and installation is not a multi-file transaction. Windows preserves DACL/mode but not owner/SACL/named streams and refuses encrypted targets; POSIX ownership/mode restoration may fail for insufficient permissions. Runtime state must live in an explicitly chosen private directory. No SHA256 manifest or HTTPS fetch alone proves publisher authenticity.
+
+No helper, database or background service is required for instruction-only use. A runtime must disclose unsupported guarantees rather than silently approximate them.
 
 ## Safety model
 
@@ -180,6 +214,6 @@ SecondBrain is intentionally generic:
 
 ## Installation
 
-Install `SKILL.md` into the skill, prompt, plugin, or instruction-package location used by your agent runtime.
+For instruction-only use, install `SKILL.md` through your runtime's supported skill-management mechanism. For helper-backed use, review and explicitly approve the manifest-listed files and follow the host bridge; do not copy a whole repository over an existing installation.
 
 Runtime-specific adapters can wrap the same storage contract without changing the core file layout.
